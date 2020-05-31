@@ -1,18 +1,18 @@
 <script>
 export default {
 	name: 'Card',
-	props: {}
+	props: []
 };
 </script>
 
 <template>
-    <div class="card">
-        <slot />
-    </div>
+	<div class="card">
+		<slot />
+	</div>
 </template>
 
 <style scoped>
-    .card {
+	.card {
         position: relative;
         display: inline-block;
         flex-direction: column;
@@ -24,7 +24,7 @@ export default {
         box-shadow: 2px 1px 5px #ccc;
     }
 
-    p {
+	p {
         margin-bottom: 6px;
     }
 </style>

@@ -36,10 +36,6 @@
       "parser": "babel-eslint"
     },
     "rules": {
-      "indent": [
-        "error",
-        "tab"
-      ],
       "semi": [
         "error",
         "always"
