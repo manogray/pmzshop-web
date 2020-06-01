@@ -6,6 +6,8 @@ import CardRowList from '../components/CardRowList.vue';
 import CardProduct from '../components/CardProduct.vue';
 import Card from '../components/Card.vue';
 
+import api from '../services/api';
+
 export default {
   name: 'Home',
   props: [],
@@ -17,6 +19,7 @@ export default {
 	},
 
 	data: function() {
+
 		return {
 			categories: [
 				'Suspensão',
@@ -28,41 +31,25 @@ export default {
 				'Filtros',
 				'Escapamentos'
 			],
-			bestSellers: [
-				{
-					name: 'Motor 0KM VW 2.0',
-					cod: '554875',
-					price: 'R$ 1500,00'
-				},
-				{
-					name: 'Pneu aro 15 Vulcanizado',
-					cod: '554875',
-					price: 'R$ 2999,00'
-				},
-				{
-					name: 'Caixa de Câmbio 5 posições',
-					cod: '554875',
-					price: 'R$ 899,00'
-				},
-				{
-					name: 'Motor 0KM VW 1.0 Flex',
-					cod: '554875',
-					price: 'R$ 1199,00'
-				},
-				{
-					name: 'Motor 0KM VW 2.0',
-					cod: '554875',
-					price: 'R$ 1500,00'
-				}
-			]
+			products: []
 		};
+	},
+	methods: {
+		async loadProducts(){
+			const products = await api.get('products');
+			console.log(products.data);
+			this.products = products.data;
+		},
+	},
+	async mounted(){
+		await this.loadProducts();
 	}
 };
 </script>
 
 <template>
   <div>
-    <TopBar />
+    <TopBar v-bind:data="products" />
 
     <CardRowList>
       <Card class="category" v-for="category in categories" v-bind:key="category">
@@ -75,14 +62,14 @@ export default {
     <div id="vendido">
       <h3 class="lab">Mais Vendidos</h3>
       <CardRowList>
-        <CardProduct v-for="product in bestSellers" v-bind:key="product" v-bind:product="product" />
+        <CardProduct v-for="product in products" v-bind:key="product.id" v-bind:product="product" />
       </CardRowList>
     </div>
 
     <div id="vendido">
       <h3 class="lab">Promoção</h3>
       <CardRowList>
-        <CardProduct v-for="product in bestSellers" v-bind:key="product" v-bind:product="product" v-bind:off="true" />
+        <CardProduct v-for="product in products" v-bind:key="product.id" v-bind:product="product" v-bind:off="true" />
       </CardRowList>
     </div>
 

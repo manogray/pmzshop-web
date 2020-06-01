@@ -1,6 +1,8 @@
 <script>
 import TopBar from '../components/TopBar';
-import { CreditCardIcon, Trash2Icon, PlusIcon } from 'vue-feather-icons';
+import { CreditCardIcon, Trash2Icon, PlusIcon, MinusIcon } from 'vue-feather-icons';
+
+import api from '../services/api';
 
 export default {
 	name: 'Cart',
@@ -10,6 +12,67 @@ export default {
 		CreditCardIcon,
 		Trash2Icon,
 		PlusIcon,
+		MinusIcon
+	},
+	methods: {
+		increaseAmount(product){
+			this.$store.dispatch('increaseItem', product);
+		},
+		decreaseAmount(product){
+			this.$store.dispatch('decreaseItem', product);
+		},
+		removeCart(product){
+			this.$store.dispatch('removeItem', product);
+		},
+		async buy(){
+			if(this.$store.state.signed){
+				const order = await api.post('orders', {
+					total: this.totalprice
+				}, {
+					headers: {
+						Authorization: "Bearer " + this.$store.state.token
+					}
+				});
+				
+				this.cart.map(async item => {
+					await api.post("orders/"+order.data.id+"/products/"+item.id, {
+						unit: item.amount
+					}, {
+						headers: {
+							Authorization: "Bearer " + this.$store.state.token
+						}
+					});
+				});
+
+				await api.put("orders/"+order.data.id+"/confirmed",{},{
+					headers: {
+						Authorization: "Bearer " + this.$store.state.token
+					}
+				});
+
+				this.$toast.success("Pedido "+order.data.id+" Finalizado");
+				this.$store.dispatch('buy');
+				this.$router.push('/');
+				
+			}else {
+				this.$router.push({ path: 'login', query: { cart: 'continue' } });
+			}
+		}
+	},
+	computed: {
+		cart() {
+			console.log(this.$store.state.cart);
+			return this.$store.state.cart;
+		},
+
+		totalprice(){
+			let sum = 0;
+			this.cart.forEach((item) => {
+				sum = sum + (item.price * item.amount); 
+			});
+
+			return sum;
+		}
 	}
 };
 </script>
@@ -22,19 +85,22 @@ export default {
 			<h2 id="cartTitle">Carrinho</h2>
 
 			<div class="checkoutCard card">
-				<div class="item">
+				<div class="item" v-for="item in cart" v-bind:key="item.id">
 					<div class="itemInfo">
-						<p>Roda dentada</p>
-						<p>COD 55847</p>
-						<p>Honda</p>
+						<p>{{ item.name }}</p>
+						<small>COD {{ item.id }}</small>
+						<p>{{ item.description }}</p>
 					</div>
 					<div class="itemOptions">
 						<div class="amount">
-							<button class="roundButton">
+							<button v-on:click="removeCart(item)" class="roundButton">
 								<trash-2-icon></trash-2-icon>
 							</button>
-							<p>1</p>
-							<button class="roundButton">
+							<button v-on:click="decreaseAmount(item)" class="roundButton">
+								<minus-icon></minus-icon>
+							</button>
+							<p>{{ item.amount }}</p>
+							<button v-on:click="increaseAmount(item)" class="roundButton">
 								<plus-icon></plus-icon>
 							</button>
 							<p>UN</p>
@@ -42,15 +108,15 @@ export default {
 						<div class="price">
 							<div>
 								<p>Preço unitário</p>
-								<p>R$ 15,30</p>
+								<p>R$ {{ item.price }}</p>
 							</div>
 							<div>
 								<p>Total</p>
-								<p>R$ 15,30</p>
+								<p>R$ {{ item.price*item.amount }}</p>
 							</div>
 							<div>
 								<p>Total líquido</p>
-								<p class="bold-text">R$15,30</p>
+								<p class="bold-text">R$ {{ item.price*item.amount }}</p>
 							</div>
 						</div>
 					</div>
@@ -59,9 +125,9 @@ export default {
 			<div class="checkoutAttached">
 				<div class="totalPrice">
 					<p>Total a pagar</p>
-					<h3>R$ 150,00</h3>
+					<h3>R$ {{ totalprice }}</h3>
 				</div>
-				<button class="pmzButton checkout"> <credit-card-icon></credit-card-icon> Finalizar Compra</button>
+				<button v-on:click="buy" class="pmzButton checkout"> <credit-card-icon></credit-card-icon> Finalizar Compra</button>
 			</div>
 		</div>
 
@@ -88,6 +154,8 @@ export default {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+		border-bottom: 1px solid #696969;
+		padding: 16px 0px;
 	}
 
 	.itemInfo {
@@ -98,6 +166,7 @@ export default {
 		white-space: nowrap;
 		text-overflow: ellipsis;
 		overflow: hidden;
+		margin: 0;
 	}
 
 	.amount, .price, .itemOptions {

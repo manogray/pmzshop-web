@@ -7,13 +7,34 @@ export default {
 	components: {
 		UserIcon,
 		LockIcon,
+	},
+	data: function(){
+		return {
+			user: {
+				email: '',
+				password: ''
+			}
+		};
+	},
+	methods: {
+		login(){
+			this.$store.dispatch('signIn', this.user);
+			if(this.$route.query.cart){
+				this.$toast.success('Login feito com sucesso!');
+				this.$router.push('checkout');
+			}else {
+				this.$toast.success('Login feito com sucesso!');
+				this.$router.push('/');
+			}
+			
+		}
 	}
 };
 </script>
 
 <template>
 	<div class="login">
-		<form v-on:submit.prevent="onSubmit" class="card primary-color login-form">
+		<form v-on:submit.prevent="login" class="card primary-color login-form">
 			<img class="login-logo" src="../assets/logo.png" alt="">
 
 			<div class="inputField">
@@ -24,7 +45,7 @@ export default {
 								<user-icon></user-icon>
 							</div>
 						</div>
-						<input type="text" placeholder="E-mail" class="form-control">
+						<input type="text" v-model="user.email" placeholder="E-mail" class="form-control">
 					</div>
 				</div>
 				<div class="form-group">
@@ -34,7 +55,7 @@ export default {
 								<lock-icon></lock-icon>
 							</div>
 						</div>
-						<input type="password" placeholder="Senha" class="form-control">
+						<input type="password" v-model="user.password" placeholder="Senha" class="form-control">
 					</div>
 				</div>
 			</div>

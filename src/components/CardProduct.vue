@@ -6,6 +6,13 @@ export default {
     props: ['product', 'off'],
     components: {
         ShoppingCartIcon,
+    },
+    methods: {
+        addCart(product) {
+			this.$store.dispatch('addCart', product);
+            console.log(this.$store.state.cart);
+            this.$toast.success('Adicionado ao carrinho!');
+		}
     }
 };
 </script>
@@ -13,10 +20,10 @@ export default {
 <template>
     <div class="card">
         <p class="nomeProduto">{{ product.name }}</p>
-        <p class="codigoProduto">COD {{ product.cod }}</p>
-        <p class="precoProduto">{{ product.price }}</p>
+        <p class="codigoProduto">COD {{ product.id }}</p>
+        <p class="precoProduto">R$ {{ product.price }}</p>
         <div class="roundBtnContainer">
-            <button class="roundButton">
+            <button class="roundButton" v-on:click="addCart(product)">
                 <shopping-cart-icon></shopping-cart-icon>
             </button>
         </div>

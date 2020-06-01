@@ -2,6 +2,8 @@
 import TopBar from '../components/TopBar';
 import CardProduct from '../components/CardProduct';
 
+import api from '../services/api';
+
 export default {
 	name: 'Search',
 	props: [],
@@ -9,36 +11,20 @@ export default {
 		TopBar,
 		CardProduct,
 	},
-	data: function() {
+	data: function(){
 		return {
-			items: [
-				{
-					name: 'Motor 0KM VW 2.0',
-					cod: '554875',
-					price: 'R$ 1500,00'
-				},
-				{
-					name: 'Pneu aro 15 Vulcanizado',
-					cod: '554875',
-					price: 'R$ 2999,00'
-				},
-				{
-					name: 'Caixa de Câmbio 5 posições',
-					cod: '554875',
-					price: 'R$ 899,00'
-				},
-				{
-					name: 'Motor 0KM VW 1.0 Flex',
-					cod: '554875',
-					price: 'R$ 1199,00'
-				},
-				{
-					name: 'Motor 0KM VW 2.0',
-					cod: '554875',
-					price: 'R$ 1500,00'
-				}
-			]
+			products: []
 		};
+	},
+	methods: {
+		async loadSearch(){
+			const products = await api.get("products?q="+this.$route.query.q);
+			console.log(products.data);
+			this.products = products.data;
+		},
+	},
+	async mounted(){
+		await this.loadSearch();
 	}
 };
 </script>
@@ -49,9 +35,9 @@ export default {
 
 		<h2 class="searchTitle">{{ this.$route.query.q }}</h2>
 
-		<p class="subTitle">Exibindo 20 resultados</p>
+		<p class="subTitle">Exibindo {{ products.length }} resultados</p>
 		<div class="results">
-			<CardProduct class="columnType" v-for="item in items" v-bind:key="item.name" v-bind:product="item" />
+			<CardProduct class="columnType" v-for="item in products" v-bind:key="item.id" v-bind:product="item" />
 		</div>
 	</div>
 </template>

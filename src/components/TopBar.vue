@@ -3,38 +3,12 @@ import { SearchIcon, ShoppingCartIcon } from 'vue-feather-icons';
 
 export default {
 	name: 'TopBar',
-	props: [],
+	props: ['data'],
 	data: function() {
 		return {
-			items: [
-				{
-					name: 'Motor 0KM VW 2.0',
-					cod: '554875',
-					price: 'R$ 1500,00'
-				},
-				{
-					name: 'Pneu aro 15 Vulcanizado',
-					cod: '554875',
-					price: 'R$ 2999,00'
-				},
-				{
-					name: 'Caixa de Câmbio 5 posições',
-					cod: '554875',
-					price: 'R$ 899,00'
-				},
-				{
-					name: 'Motor 0KM VW 1.0 Flex',
-					cod: '554875',
-					price: 'R$ 1199,00'
-				},
-				{
-					name: 'Motor 0KM VW 2.0',
-					cod: '554875',
-					price: 'R$ 1500,00'
-				}
-			],
 			query: '',
 			visible: false,
+			sig: this.$store.state.signed
 		};
 	},
 	components: {
@@ -56,7 +30,9 @@ export default {
 				return [];
 			}
 
-			return this.items.filter((item) => item.name.toLowerCase().includes(this.query.toLowerCase()));
+			console.log(this.data);
+
+			return this.data.filter((item) => item.name.toLowerCase().includes(this.query.toLowerCase()));
 		}
 	}
 };
@@ -89,8 +65,13 @@ export default {
 		</div>
 		<div class="collapse navbar-collapse" id="navbarNav">
 			<ul class="navbar-nav">
-				<li class="nav-item">
-					<router-link class="nav-link" to="login">Login</router-link>
+				<li>
+					<a href="" v-if="sig">
+						{{ $store.state.user.name }}
+					</a>
+					<router-link v-else class="nav-link" to="login">
+						Login
+					</router-link>
 				</li>
 				<li class="nav-item">
 					<router-link class="nav-link" to="checkout">
