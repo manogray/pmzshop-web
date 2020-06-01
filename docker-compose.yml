@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+    app:
+        build: .
+        ports:
+            - "8080:8080"
+        command: "yarn serve"
+        environment: 
+            API_URL: pmzshop-api_app_1
